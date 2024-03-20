@@ -1,0 +1,61 @@
+provider.tf
+------------
+provider "aws" {
+   region     = "ap-south-1"
+   access_key = "AKIAFQE6AT7PRWY"
+   secret_key = "GrxZQoKU6w520d+l20eYfKdEZtz0EeEhSGeFe"
+}
+
+
+main.tf
+-------
+module "vpc" {
+
+source ="./modules/vpc"
+vpc_cidr= var.vpc_cidr
+subnet_cidr= var.subnet_cidr
+}
+
+module "shg" {
+source ="./modules/shg"
+vpc_id =module.vpc.vpc_id
+
+}
+
+
+module "ec2" {
+
+source = "./modules/ec2"
+sg_id= module.shg.sg_id
+subnets = module.vpc.subnet_ids
+}
+
+var.tf
+------
+
+variable "vpc_cidr" {
+type= string
+}
+
+variable "subnet_cidr" {
+type=list(string)
+}
+
+variable "subnet_names" {
+type=list(string)
+default= [ "pub-1","pub-2" ]
+}
+
+
+terraform.tfvars
+--------------
+vpc_cidr= "10.0.0.0/16"
+subnet_cidr= ["10.0.1.0/24","10.0.3.0/24"]
+
+
+
+
+
+
+
+
